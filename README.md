@@ -52,7 +52,7 @@ You can add a cronjob with supported CDN to trigger the IP update script periodi
 For example, create `/etc/cron.d/opt/nginx-cdn-set-real-ip` with the following contents:
 
 ```cron
-1 1 * * * root /opt/nginx-cdn-set-real-ip/generate.sh fastly --cron && /usr/sbin/service nginx reload
+1 1 * * * root /opt/nginx-cdn-set-real-ip/generate.sh fastly --cron && systemctl reload nginx
 ```
 
 This will run the script every day at 01:01 AM and reload nginx with the new configuration.

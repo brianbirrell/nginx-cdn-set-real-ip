@@ -30,7 +30,7 @@ fetch_ip_list() {
         ;;
     "fastly")
         curl --compressed -sLo- https://api.fastly.com/public-ip-list | \
-            awk -F'[]["'] '{for(i=1;i<=NF;i++) if ($i ~ /.*\/.*/) print $i}' | \
+            awk -F'[]["'] '{for(i=1;i<=NF;i++) if ($i ~ /.*\/.* /) print $i}' | \
             sed 's/,\|"//g' >> "$temp_ips"
         ;;
     esac
@@ -96,7 +96,7 @@ for cdn in "${!REQUESTED_CDN[@]}"; do
     echo "Fetching ${CDN_NAME[$cdn]} IP addresses..."
     fetch_ip_list "$cdn"
     echo "Generating nginx configuration file..."
-    sed -i -e 's/^/set_real_ip_from /g' -e 's/$/;/g' -e "1i real_ip_header ${CDN_IP_HEADER[$cdn]};" "$temp_ips"
+    sed -i -e 's/^/set_real_ip_from /g' -e 's/$/;/g' -e "1i real_ip_recursive on;" -e "1i real_ip_header ${CDN_IP_HEADER[$cdn]};" "$temp_ips"
 
     if ! [ -e "$nginx_ip_conf" ]; then
         mv -f "$temp_ips" "$nginx_ip_conf"

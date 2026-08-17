@@ -30,8 +30,8 @@ fetch_ip_list() {
         ;;
     "fastly")
         curl --compressed -sLo- https://api.fastly.com/public-ip-list | \
-            awk -F'[]["]' '{for(i=1;i<=NF;i++) if ($i ~ /.*\/.*/) print $i}' | \
-            sed 's/,\|\"//g' >> "$temp_ips"
+            awk -F'[]["'] '{for(i=1;i<=NF;i++) if ($i ~ /.*\/.*/) print $i}' | \
+            sed 's/,\|"//g' >> "$temp_ips"
         ;;
     esac
 }
@@ -65,7 +65,8 @@ for arg in "$@"; do
         ;;
     esac
 
-    if [ ! -v 'CDN_NAME["$arg"]' ]; then
+    # Test whether CDN_NAME has an element for this arg.
+    if [ -z "${CDN_NAME[$arg]+x}" ]; then
         echo >&2 "\"$arg\" is not in the supported CDN list nor the supported argument, skipped..."
         continue
     fi
@@ -74,7 +75,8 @@ done
 
 chmod 644 "$temp_ips"
 
-if [ ! -v 'REQUESTED_CDN[@]' ]; then
+# Check whether any CDN was requested
+if [ ${#REQUESTED_CDN[@]} -eq 0 ]; then
     echo >&2
     echo >&2 "No valid CDN found!"
     help
